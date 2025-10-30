@@ -5,9 +5,9 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strconv" //may replace this
+	"sync"
 )
-
-
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -17,37 +17,54 @@ var upgrader = websocket.Upgrader{
 	}, // for now, allow connection from any website
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+// pool of connected players waiting for a match
+var playerMatchmakingPool = make(chan *Player)
+
+// all connected clients
+var connections = make(map[string]*Player)
+var connMutex = sync.Mutex{}
+
+// runs when the server receives an HTTP message from a client, upgrades that connection to websocket, 
+// makes a player for that connection and stores them in the connections map. adds the player to the matchmaking pool
+func connectionHandler(w http.ResponseWriter, r *http.Request) {
   conn, err := upgrader.Upgrade(w, r, nil)
   if err != nil {
 		log.Println(err)
 		return
   }
-  defer conn.Close()
 
-	log.Println("Connection opened!")
+	player := Player{
+		generateID(), 
+		conn,
+	}
 
-	// simple echo server
-	for {
-		messageType, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("Read error:", err)
-			break
-		}
-			
-		log.Printf("Received: %s", message)
-			
-		// Echo back
-		err = conn.WriteMessage(messageType, message)
-		if err != nil {
-			log.Println("Write error:", err)
-			break
+	connMutex.Lock()
+	connections[player.ID] = &player
+	connMutex.Unlock()
+
+	log.Println("Player", player.ID, "connected")
+
+	playerMatchmakingPool <- &player
+
+	log.Println("Player", player.ID, "added to matchmaking pool")
+}
+
+// generates a unique id for a player
+func generateID() string {
+	connMutex.Lock()
+	defer connMutex.Unlock()
+	for i := 1; ; i++ {
+		_, ok := connections["player_" + strconv.Itoa(i)]
+		if !ok {
+			return "player_" + strconv.Itoa(i)
 		}
 	}
 }
 
 func main() {
-	http.HandleFunc("/ws", handler)
+	go matchmaker()
+
+	http.HandleFunc("/ws", connectionHandler)
 	
 	port := ":8080"
 	fmt.Printf("Server starting on http://localhost%s\n", port)
