@@ -6,7 +6,19 @@ import (
 
 // TODO: write function description
 func handlePlayerMessages(player *Player, game *Game) {
-	// TODO: write logic for handling player messages, handle cleanups on client disconnections
+	defer player.Conn.Close()
+
+	for {
+		var msg map[string]interface{}
+		err := player.Conn.ReadJSON(&msg)
+		if err != nil {
+				log.Printf("Player %s disconnected", player.ID)
+				break
+		}
+		
+		// Handle messages (moves, chat, etc.)
+		log.Printf("Player %s: %v", player.ID, msg)
+	}
 }
 
 // starts the game for a given game object, starts handling player messages and funneling them into the EventChannel, main game loop
