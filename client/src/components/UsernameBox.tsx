@@ -1,22 +1,20 @@
 import { useState } from "react";
 
-function UsernameBox() {
-  const [username, setUsername] = useState("");
+interface UsernameBoxProps {
+  username: string;
+  setUsername: (username: string) => void;
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setUsername(value);
-    localStorage.setItem("username", value);
-  };
-
+function UsernameBox({ username, setUsername }: UsernameBoxProps) {
   return (
-    <input
-      type="text"
-      value={username}
-      onChange={handleChange}
-      placeholder="Enter username"
-      className="border border-gray-300 rounded px-4 py-2 mb-4"
-    />
+    <>
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="username"
+      />
+    </>
   );
 }
 

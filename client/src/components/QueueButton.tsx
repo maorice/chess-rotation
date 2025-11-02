@@ -1,47 +1,22 @@
-import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { WSContext, useWS } from "../context/WSContext";
 
-function QueueButton() {
-  const navigate = useNavigate();
+interface QueueButtonProps {
+  username: string;
+}
 
-  const handleQueue = async () => {
-    // Get username from localStorage or pass it as a prop
-    const username = localStorage.getItem("username");
+function QueueButton({ username }: QueueButtonProps) {
+  const { connect, send } = useWS();
 
-    if (!username || username.trim() === "") {
-      alert("Please enter a username first");
-      return;
-    }
-
-    // TODO: replace this with websocket connection request and refactor my app to use ws context
-    try {
-      const response = await fetch("http://localhost:8080/connect", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username }),
-      });
-
-      if (response.ok) {
-        // Navigate to waiting page on success
-        navigate("/waiting");
-      } else {
-        alert("Failed to connect to server");
-      }
-    } catch (error) {
-      console.error("Error connecting to server:", error);
-      alert("Could not connect to server");
-    }
+  const joinQueue = () => {
+    connect();
+    send({
+      type: "JOIN_QUEUE",
+      args: { username },
+    });
   };
 
-  return (
-    <button
-      onClick={handleQueue}
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    >
-      Queue
-    </button>
-  );
+  return <button onClick={joinQueue}>Join Queue</button>;
 }
 
 export default QueueButton;

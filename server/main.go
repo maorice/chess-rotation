@@ -36,15 +36,19 @@ func connectionHandler(w http.ResponseWriter, r *http.Request) {
 		conn,
 	}
 
+	go echoMessages(&player)
+
 	connMutex.Lock()
 	connections[player.ID] = &player
 	connMutex.Unlock()
 
-	log.Println("Player", player.ID, "connected")
+	log.Println("[DEBUG]: Player", player.ID, "connected")
 
 	playerMatchmakingPool <- &player
 
-	log.Println("Player", player.ID, "added to matchmaking pool")
+	log.Println("[DEBUG]: Player", player.ID, "added to matchmaking pool")
+
+	
 }
 
 // generates a unique id for a player
@@ -65,6 +69,6 @@ func main() {
 	http.HandleFunc("/ws", connectionHandler)
 	
 	port := ":8080"
-	fmt.Printf("Server starting on http://localhost%s\n", port)
+	fmt.Printf("[DEBUG]: Server starting on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

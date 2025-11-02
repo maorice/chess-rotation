@@ -4,7 +4,7 @@ import Waiting from "./pages/Waiting.tsx";
 import Game from "./pages/Game.tsx";
 
 function App() {
-  console.log("rendering app");
+  console.log("[DEBUG]: Rendering app");
   return (
     <BrowserRouter>
       <Routes>
