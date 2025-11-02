@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { useWS } from "../context/WSContext";
 
 function QueueButton() {
   const { connect, send } = useWS();
+  const navigate = useNavigate();
 
   const joinQueue = async () => {
     const username = localStorage.getItem("username");
@@ -13,7 +15,7 @@ function QueueButton() {
       args: { username },
     });
 
-    // TODO: route to queue page
+    navigate("/waiting");
   };
 
   return <button onClick={joinQueue}>Join Queue</button>;

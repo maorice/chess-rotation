@@ -1,0 +1,42 @@
+/* Full-page layout */
+.landing-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #f5f0e1, #e8dccd);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: "Arial", sans-serif;
+}
+
+/* Centered white box */
+.center-box {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  z-index: 10;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  min-width: 300px;
+  max-width: 400px;
+}
+
+/* Page title */
+.center-box h1 {
+  font-size: 2.5rem;
+  color: #333;
+}
+
+/* Responsive tweak */
+@media (max-width: 500px) {
+  .center-box {
+    width: 90%;
+    padding: 2rem 1rem;
+  }
+
+  .center-box h1 {
+    font-size: 2rem;
+  }
+}
