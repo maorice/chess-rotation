@@ -1,20 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-interface UsernameBoxProps {
-  username: string;
-  setUsername: (username: string) => void;
-}
+function UsernameBox() {
+  const [username, setUsername] = useState(() => {
+    return localStorage.getItem("username") || "";
+  });
 
-function UsernameBox({ username, setUsername }: UsernameBoxProps) {
+  useEffect(() => {
+    localStorage.setItem("username", username);
+  }, [username]);
+
   return (
-    <>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="username"
-      />
-    </>
+    <input
+      type="text"
+      value={username}
+      onChange={(e) => setUsername(e.target.value)}
+      placeholder="username"
+    />
   );
 }
 

@@ -13,6 +13,7 @@ type Player struct {
 type GameEvent struct {
 	Player *Player
 	Type string
+	Msg string
 }
 
 type Game struct {

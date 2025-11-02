@@ -1,0 +1,71 @@
+/* Full-page layout */
+.landing-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: "Arial", sans-serif;
+}
+
+/* Centered white box */
+.center-box {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  z-index: 10; /* above falling emojis */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  min-width: 300px;
+  max-width: 400px;
+}
+
+/* Page title */
+.center-box h1 {
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: #333;
+}
+
+/* Username input */
+.center-box input {
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Queue button */
+.center-box button {
+  padding: 0.7rem 2rem;
+  font-size: 1.2rem;
+  border-radius: 0.5rem;
+  border: none;
+  background-color: #66a6ff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.center-box button:hover {
+  background-color: #89f7fe;
+}
+
+/* Optional: small responsive tweak */
+@media (max-width: 500px) {
+  .center-box {
+    width: 90%;
+    padding: 2rem 1rem;
+  }
+
+  .center-box h1 {
+    font-size: 2rem;
+  }
+}

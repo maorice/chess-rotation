@@ -1,17 +1,17 @@
-import { useState } from "react";
+import UsernameBox from "../components/UsernameBox";
+import QueueButton from "../components/QueueButton";
+import FallingEmojiBackground from "../components/FallingEmojiBackground";
+import "./Home.css";
 
-import UsernameBox from "../components/UsernameBox.tsx";
-import QueueButton from "../components/QueueButton.tsx";
-
-function Home() {
-  const [username, setUsername] = useState<string>("");
+export default function Home() {
   return (
-    <>
-      <h1>Chess Rotation</h1>
-      <UsernameBox username={username} setUsername={setUsername} />
-      <QueueButton username={username} />
-    </>
+    <div className="landing-page">
+      <FallingEmojiBackground emojis={["🎉", "✨"]} count={30} />
+      <div className="center-box">
+        <h1>Chess Rotation</h1>
+        <UsernameBox />
+        <QueueButton />
+      </div>
+    </div>
   );
 }
-
-export default Home;
