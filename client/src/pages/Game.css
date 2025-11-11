@@ -1,0 +1,204 @@
+/* Full-page layout */
+.game-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #f5f0e1, #e8dccd);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: "Arial", sans-serif;
+  padding: 2rem;
+}
+
+/* Large wide rectangle container */
+.game-container {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  z-index: 10;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 90vw;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Content with board on left, moves on right */
+.game-content {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+  width: 100%;
+  justify-content: space-between;
+  max-width: 1100px;
+}
+
+/* Board section */
+.board-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Player info boxes */
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f5f0e1;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  width: 100%;
+  max-width: 450px;
+}
+
+.player-info.enemy {
+  background: #ffe8e8;
+}
+
+.player-info.player {
+  background: #e8f4ff;
+}
+
+.player-avatar {
+  font-size: 1.5rem;
+}
+
+.player-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Chessboard wrapper */
+.chessboard-wrapper {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  max-width: 450px;
+  width: 100%;
+}
+
+/* Moves section */
+.moves-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 280px;
+  flex: 1;
+  max-width: 400px;
+}
+
+.moves-section h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f5f0e1;
+}
+
+.moves-list {
+  background: #fafafa;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.move-item {
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border-radius: 0.25rem;
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.no-moves {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 2rem 0;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .game-page {
+    padding: 1rem;
+  }
+
+  .game-container {
+    width: 95vw;
+    padding: 2rem;
+  }
+
+  .game-content {
+    gap: 2rem;
+  }
+
+  .chessboard-wrapper {
+    max-width: 380px;
+  }
+
+  .player-info {
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .moves-section {
+    width: 100%;
+    max-width: 450px;
+  }
+
+  .moves-list {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 500px) {
+  .game-page {
+    padding: 0.5rem;
+  }
+
+  .game-container {
+    padding: 1rem;
+    gap: 1rem;
+    width: 98vw;
+  }
+
+  .game-content {
+    gap: 1rem;
+  }
+
+  .chessboard-wrapper {
+    max-width: 300px;
+  }
+
+  .player-info {
+    padding: 0.5rem 1rem;
+    max-width: 300px;
+  }
+
+  .moves-section {
+    max-width: 300px;
+  }
+}

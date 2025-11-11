@@ -2,10 +2,16 @@ package main
 
 import (
 	"log"
+	"strconv"
+	"sync"
 )
 
+// all running games
+var games = make(map[string]*Game)
+var gamesMutex = sync.Mutex{}
+
 // starts running when the player's game starts, processing their essages and adding them to the EventChannel
-func handlePlayerMessages(player *Player, game *Game) {
+func handleGameMessages(player *Player, game *Game) {
 	defer player.Conn.Close()
 
 	for {
@@ -27,8 +33,8 @@ func handlePlayerMessages(player *Player, game *Game) {
 func startGame(game *Game) {
 	log.Println("[DEBUG]: Game started for", game.Player1.ID, "and", game.Player2.ID)
 
-	go handlePlayerMessages(game.Player1, game)
-	go handlePlayerMessages(game.Player2, game)
+	go handleGameMessages(game.Player1, game)
+	go handleGameMessages(game.Player2, game)
 
 	for {
 		event := <- game.EventChannel
@@ -48,9 +54,25 @@ func matchmaker() {
 			Player1: player1,
 			Player2: player2,
 			EventChannel: make(chan GameEvent),
+			GameID: generateGameID(),
 		}
 
 		go startGame(&game)
 
+		sendGameFound(player1, player2, game.GameID)
+		sendGameFound(player2, player1, game.GameID)
+
+	}
+}
+
+// generates a unique game id for a game
+func generateGameID() string {
+	connMutex.Lock()
+	defer connMutex.Unlock()
+	for i := 1; ; i++ {
+		_, ok := connections["game" + strconv.Itoa(i)]
+		if !ok {
+			return "game_" + strconv.Itoa(i)
+		}
 	}
 }

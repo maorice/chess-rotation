@@ -1,29 +1,23 @@
 // Provides a singleton WebSocket connection shared by the entire client.
-// Exposes connect(), send(), and receive().
+// Exposes connect(), send(), and subscribe to message types.
+// Includes message buffering to handle race conditions.
 
-import React, {
-  createContext,
-  useRef,
-  useEffect,
-  useContext,
-  useCallback,
-} from "react";
+import React, { createContext, useRef, useContext, useCallback } from "react";
 
 // set to localhost for local dev, will eventually implement a getServerURL() that will return the server URL
 const serverURL = "ws://localhost:8080/ws";
-
-interface WSProviderProps {
-  children: React.ReactNode;
-}
 
 interface WSMessage {
   type: string;
   args: Record<string, string>;
 }
 
+type MessageHandler = (msg: WSMessage) => void;
+
 interface WSContextType {
-  connect: () => void;
+  connect: () => Promise<void>;
   send: (msg: WSMessage) => void;
+  subscribe: (messageType: string, handler: MessageHandler) => () => void;
 }
 
 export const WSContext = createContext<null | WSContextType>(null);
@@ -37,6 +31,45 @@ export function useWS() {
 
 export function WSProvider({ children }: { children: React.ReactNode }) {
   const ws = useRef<WebSocket | null>(null);
+  const messageHandlers = useRef<Record<string, MessageHandler>>({});
+  const messageBuffer = useRef<WSMessage[]>([]);
+
+  /* Subscribe to a specific message type */
+  const subscribe = useCallback(
+    (messageType: string, handler: MessageHandler) => {
+      messageHandlers.current[messageType] = handler;
+      console.log(`[DEBUG]: Subscribed to ${messageType}`);
+
+      // Check buffer for any messages that arrived before subscription
+      const bufferedMessages = messageBuffer.current.filter(
+        (msg) => msg.type === messageType
+      );
+
+      if (bufferedMessages.length > 0) {
+        console.log(
+          `[DEBUG]: Processing ${bufferedMessages.length} buffered message(s) for ${messageType}`
+        );
+
+        // Process each buffered message
+        bufferedMessages.forEach((msg) => {
+          handler(msg);
+        });
+
+        // Remove processed messages from buffer
+        messageBuffer.current = messageBuffer.current.filter(
+          (msg) => msg.type !== messageType
+        );
+      }
+
+      // Return unsubscribe function
+      return () => {
+        delete messageHandlers.current[messageType];
+        console.log(`[DEBUG]: Unsubscribed from ${messageType}`);
+      };
+    },
+    []
+  );
+
   const connect = useCallback((): Promise<void> => {
     console.log("[DEBUG]: Connecting to server");
 
@@ -51,7 +84,7 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
       ws.current = socket;
 
       const timeout = setTimeout(() => {
-        console.log("[ERROR]: Connection timed out");
+        console.error("[ERROR]: Connection timed out");
         socket.close();
         reject(new Error("Connection timed out"));
       }, 5000);
@@ -59,18 +92,42 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
       socket.onopen = () => {
         clearTimeout(timeout);
         console.log("[DEBUG]: Successfully connected to server");
-        resolve(); // resolve the promise when open
+        resolve();
       };
 
       socket.onerror = (err) => {
         clearTimeout(timeout);
-        console.log("[ERROR]: Connection failed");
-        reject(err); // reject the promise on error
+        console.error("[ERROR]: Connection failed");
+        reject(err);
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data) as WSMessage;
+          console.log(`[DEBUG]: Received message:`, msg);
+
+          // Call the handler for this specific message type
+          const handler = messageHandlers.current[msg.type];
+          if (handler) {
+            handler(msg);
+            console.log("[DEBUG]: Handler found and called");
+          } else {
+            // Buffer the message if no handler is registered yet
+            messageBuffer.current.push(msg);
+            console.warn(
+              `[WARN]: No handler registered for message type: ${msg.type}, buffering message`
+            );
+          }
+        } catch (err) {
+          console.error("[ERROR]: Failed to parse message", err);
+        }
       };
 
       socket.onclose = () => {
         ws.current = null;
         console.log("[DEBUG]: Connection closed");
+        // Clear buffer on disconnect
+        messageBuffer.current = [];
       };
     });
   }, []);
@@ -85,7 +142,7 @@ export function WSProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <WSContext.Provider value={{ connect, send }}>
+    <WSContext.Provider value={{ connect, send, subscribe }}>
       {children}
     </WSContext.Provider>
   );
